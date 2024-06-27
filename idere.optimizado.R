@@ -137,7 +137,7 @@ ggplot(idere_filtered, aes(x = gender, y = ras_dep, fill = gender)) +
 
 # juntar los  2 gráficos en una sola imagen 
 
-#(box_est | box_rasgo) + plot_layout(ncol = 2)
+       #(box_est | box_rasgo) + plot_layout(ncol = 2)
 
 ### Gráfico 3 ####
 
@@ -148,16 +148,22 @@ age_range <- idere_filtered %>%
      mutate(RangoEdad = cut(age, breaks = c(17, 25, 35, 45, 55,68),
      labels = c("17-25 años", "26-35 años", "36-45 años", "46-55 años"," 56-68 años"),
      include.lowest = TRUE))
+# Cambio de formato ancho a largo
+age_range_longer <- age_range %>%
+  pivot_longer(cols = c(est_dep, ras_dep), 
+               names_to = "Subescala", 
+               values_to = "Puntuacion")
 
-# Gráfico de barras (PENDIENTE ).
+# Gráfico
 
 Paleta3 <- c("cornflowerblue", "brown")
-ggplot(age_range, aes(x = RangoEdad)) +
-  geom_col(aes(y = est_dep, fill = "Estado" ), position = "dodge", width = 0.7) +
-  geom_col(aes(y = ras_dep, fill = "Rasgo"), position = "dodge", width = 0.7) +
-  labs(x = "Rango de Edad", y = "Puntuación del cuestionario", fill = "", position = "dodge") +
-  ggtitle("Puntuaciones en base al rango de edad") +
-  theme_minimal() + scale_fill_manual(values = Paleta3)
+
+ggplot(age_range_longer,aes (x = RangoEdad, y = Puntuacion, fill = Subescala)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+  labs( x ="Gruposde edades", y = "Puntuación del cuestionario") +
+  ggtitle("Resultados de las subescalas estado y rasgo dependiendo de la edad") +
+  theme_minimal()+
+  scale_fill_manual(values = Paleta3)
 
 #### Gráfico 4 ####
 
@@ -178,19 +184,19 @@ ggplot(idere_filtered, aes(x = age, y = ras_dep)) +
 ### Multiple linear regresion ### (PENDIENTE)
 
 # modelo de regresión lineal para puntuación estado depresión 
-# lm(data = age_range, est_dep ~ RangoEdad*gender)
+           # lm(data = age_range, est_dep ~ RangoEdad*gender)
 
 ### visualización de la interacción por el género en la puntuación del cuestionario ###
 
-#interaction.plot(x.factor = age_range$RangoEdad,
-#                 trace.factor = age_range$gender,
-#                response = age_range$est_dep,
-#                fun = mean)
+         #interaction.plot(x.factor = age_range$RangoEdad,
+         #                 trace.factor = age_range$gender,
+         #                response = age_range$est_dep,
+         #                fun = mean)
 
 
 #guardar mis variables 
 
-save(idere_base, idere_filtered, conteo_ras, conteo_est, age_range, file = "data/data_idere_optimizada.RData")
+save(idere_base, idere_filtered, conteo_ras, conteo_est, age_range, age_range_longer, file = "data/data_idere_optimizada.RData")
 write.csv(idere_filtered, file = "data/filtrada_base_idere.csv", row.names = FALSE)
 
 
