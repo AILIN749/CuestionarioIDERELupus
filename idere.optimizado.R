@@ -180,23 +180,75 @@ ggplot(idere_filtered, aes(x = age, y = ras_dep)) +
   labs(x = "Edad", y = "puntuación") +  
   theme_minimal() 
 
+### Gráfico 5 ####
 
-### Multiple linear regresion ### (PENDIENTE)
+###Box plot de distribución de depresión como rasgo y  estado por grupos de distintas edades.###
 
-# modelo de regresión lineal para puntuación estado depresión 
-           # lm(data = age_range, est_dep ~ RangoEdad*gender)
+ #Data_frame para cambiar nombres y convetir a factor 
+ box_age_range <- age_range_longer %>%
+  mutate(Subescala = case_when(
+    Subescala == "est_dep" ~ "Estado",
+    Subescala == "ras_dep" ~ "Rasgo"
+  ),
+  Subescala = as.factor(Subescala)
+  ) 
 
-### visualización de la interacción por el género en la puntuación del cuestionario ###
+# GRÁFICO  CON TODOS LOS GRUPOS EN UN SOLO GRÁFICO 
 
-         #interaction.plot(x.factor = age_range$RangoEdad,
-         #                 trace.factor = age_range$gender,
-         #                response = age_range$est_dep,
-         #                fun = mean)
+Paleta4 <- c("#76EEC6","#BCEE68","#FFEC8B","#FF7256", "#DDA0DD")
+
+ggplot(box_age_range, aes(x = Subescala, y = Puntuacion, fill = RangoEdad)) +
+  geom_boxplot(color = "black", outlier.colour = "red", outlier.shape = 16) +
+  labs(x = "Subescala", y = "Puntuación", fill = "Grupos de Edades") +
+  ggtitle("Distribución de puntaciones por Grupos de Edades") +
+  theme_minimal() +
+  scale_fill_manual(values = Paleta4) +
+  facet_wrap(~ RangoEdad)
+  
+# GRÁFICOS POR SEPARADO DE CADA GRUPO DE EDAD 
+
+#Crear una lista vacía para almacenar gráficos 
+ages_plot_list <- list()
+
+#Age_groups almacena del df box_age_range solo la columna RangoEdad tomando los valores  unicos que existen en esta columna
+
+age_groups <- unique(box_age_range$RangoEdad)
+#> print(age_groups)
+#[1] 36-45 años  26-35 años  17-25 años   56-68 años 46-55 años 
+# Levels: 17-25 años 26-35 años 36-45 años 46-55 años  56-68 años
+
+
+## Generar un gráfico para cada grupo de edad, utilizaremos el vector creado "age_groups"
+   # age_group toma un valor único de age_groups en cada iteración. 
+   for (age_group in age_groups) {
+   #filtra las filas del dataframe box_age_range donde el valor de la columna RangoEdad es igual al valor actual de age_group
+   filtered_data <- box_age_range %>% filter(RangoEdad == age_group)
+  
+   # Crear el gráfico para el grupo de edad filtrado
+   p <- ggplot(filtered_data, aes(x = Subescala, y = Puntuacion, fill = Subescala)) +
+    geom_boxplot(color = "black", outlier.colour = "red", outlier.shape = 16) +
+    labs(x = "Subescala", y = "Puntuación", fill = "Subescala") +
+    ggtitle(paste("Distribución de puntuaciones para el grupo de edad", age_group)) +
+    theme_minimal() +
+    scale_fill_manual(values = Paleta4)
+  
+  # Añadir el gráfico a la lista
+  ages_plot_list[[age_group]] <- p
+
+  }
+
+
+
+  # Mostrar los gráficos
+for (age_group in age_groups) {
+  print(ages_plot_list[[age_group]])
+}
+
 
 
 #guardar mis variables 
 
-save(idere_base, idere_filtered, conteo_ras, conteo_est, age_range, age_range_longer, file = "data/data_idere_optimizada.RData")
+save(idere_base, idere_filtered, conteo_ras, conteo_est, age_range, age_range_longer,box_age_range, file = "data/data_idere_optimizada.RData")
 write.csv(idere_filtered, file = "data/filtrada_base_idere.csv", row.names = FALSE)
 
 
