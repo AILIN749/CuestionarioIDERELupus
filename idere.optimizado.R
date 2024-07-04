@@ -197,7 +197,7 @@ ggplot(idere_filtered, aes(x = age, y = ras_dep)) +
 
 Paleta4 <- c("#76EEC6","#BCEE68","#FFEC8B","#FF7256", "#DDA0DD")
 
-ggplot(box_age_range, aes(x = Subescala, y = Puntuacion, fill = RangoEdad)) +
+ggplot(box_age_range, aes(x = Subescala, y = Puntuacion, fill = Subescala)) +
   geom_boxplot(color = "black", outlier.colour = "red", outlier.shape = 16) +
   labs(x = "Subescala", y = "Puntuación", fill = "Grupos de Edades") +
   ggtitle("Distribución de puntaciones por Grupos de Edades") +
@@ -243,6 +243,8 @@ age_groups <- unique(box_age_range$RangoEdad)
 for (age_group in age_groups) {
   print(ages_plot_list[[age_group]])
 }
+
+
 
 
 
