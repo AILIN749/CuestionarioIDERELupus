@@ -139,6 +139,12 @@ ggplot(idere_filtered, aes(x = gender, y = ras_dep, fill = gender)) +
 
        #(box_est | box_rasgo) + plot_layout(ncol = 2)
 
+# Resumen estadístico de las box_plot para rasgo_estado 
+stats_male_est <-boxplot.stats(idere_filtered$est_dep[idere_filtered$gender == "Hombre"])
+stats_female_est <-boxplot.stats(idere_filtered$est_dep[idere_filtered$gender == "Mujer"])
+stats_male_ras <-boxplot.stats(idere_filtered$ras_dep[idere_filtered$gender == "Hombre"])
+stats_female_ras <-boxplot.stats(idere_filtered$ras_dep[idere_filtered$gender == "Mujer"])
+
 ### Gráfico 3 ####
 
 #Gráficos de barras  X = rangos de edades | Y = puntuación de ambas subescalas ( estado / rasgo )
@@ -199,7 +205,7 @@ Paleta4 <- c("#76EEC6","#BCEE68","#FFEC8B","#FF7256", "#DDA0DD")
 
 ggplot(box_age_range, aes(x = Subescala, y = Puntuacion, fill = Subescala)) +
   geom_boxplot(color = "black", outlier.colour = "red", outlier.shape = 16) +
-  labs(x = "Subescala", y = "Puntuación", fill = "Grupos de Edades") +
+  labs(x = "Subescala", y = "Puntuación", fill = "Subescala") +
   ggtitle("Distribución de puntaciones por Grupos de Edades") +
   theme_minimal() +
   scale_fill_manual(values = Paleta4) +
@@ -251,6 +257,7 @@ for (age_group in age_groups) {
 #guardar mis variables 
 
 save(idere_base, idere_filtered, conteo_ras, conteo_est, age_range, age_range_longer,box_age_range, file = "data/data_idere_optimizada.RData")
+save(stats_male_est, stats_female_est, stats_male_ras, stats_female_ras, file = "data/stats_data.RData")
 write.csv(idere_filtered, file = "data/filtrada_base_idere.csv", row.names = FALSE)
 
 
