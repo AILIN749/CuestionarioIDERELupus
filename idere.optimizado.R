@@ -154,16 +154,18 @@ age_range <- idere_filtered %>%
      mutate(RangoEdad = cut(age, breaks = c(17, 25, 35, 45, 55,68),
      labels = c("17-25 años", "26-35 años", "36-45 años", "46-55 años"," 56-68 años"),
      include.lowest = TRUE))
+
+
 # Cambio de formato ancho a largo
 age_range_longer <- age_range %>%
   pivot_longer(cols = c(est_dep, ras_dep), 
                names_to = "Subescala", 
                values_to = "Puntuacion")
-
-# Gráfico
-
-Paleta3 <- c("cornflowerblue", "brown")
-
+  
+  #  Paleta utilizada 
+  Paleta3 <- c("cornflowerblue", "brown")
+  
+  #Gráfico
 ggplot(age_range_longer,aes (x = RangoEdad, y = Puntuacion, fill = Subescala)) +
   geom_col(position = position_dodge(width = 0.8), width = 0.7) +
   labs( x ="Gruposde edades", y = "Puntuación del cuestionario") +
@@ -211,7 +213,7 @@ ggplot(box_age_range, aes(x = Subescala, y = Puntuacion, fill = Subescala)) +
   scale_fill_manual(values = Paleta4) +
   facet_wrap(~ RangoEdad)
   
-# GRÁFICOS POR SEPARADO DE CADA GRUPO DE EDAD 
+# GRÁFICOS POR SEPARADO DE CADA GRUPO DE EDAD ####
 
 #Crear una lista vacía para almacenar gráficos 
 ages_plot_list <- list()
@@ -249,15 +251,32 @@ age_groups <- unique(box_age_range$RangoEdad)
 for (age_group in age_groups) {
   print(ages_plot_list[[age_group]])
 }
+ 
+# Gráfico de barras  X = rangos de edades | Y = puntuación de ambas subescalas ( estado / rasgo ) con barras de error ####
 
 
+  # Calcular la media y la desviación estándar  por grupo y subescala
+  stdev_ras_est <- age_range_longer %>%
+  group_by(RangoEdad, Subescala) %>%
+  summarise(sd = sd(Puntuacion), mean = mean(Puntuacion))
+
+  #Gráfico con barras de error añadidas 
+  ggplot(stdev_ras_est,aes (x = RangoEdad, y = mean, fill = Subescala)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+  geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd),
+                position = position_dodge(width = 0.8), width = 0.10,  # Ancho de las barras de error
+                size = 1.2) +
+  labs( x ="Gruposde edades", y = "Puntuación del cuestionario") +
+  ggtitle("Resultados de las subescalas estado y rasgo dependiendo de la edad") +
+  theme_minimal()+
+  scale_fill_manual(values = Paleta3)
 
 
 
 #guardar mis variables 
 
 save(idere_base, idere_filtered, conteo_ras, conteo_est, age_range, age_range_longer,box_age_range, file = "data/data_idere_optimizada.RData")
-save(stats_male_est, stats_female_est, stats_male_ras, stats_female_ras, file = "data/stats_data.RData")
+save(stats_male_est, stats_female_est, stats_male_ras, stats_female_ras,stdev_ras_est, file = "data/stats_data.RData")
 write.csv(idere_filtered, file = "data/filtrada_base_idere.csv", row.names = FALSE)
 
 
