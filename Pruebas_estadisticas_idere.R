@@ -30,7 +30,9 @@ interval_ages <- idere_pruebas %>%
   mutate(ages_groups = cut(age, breaks = c(17, 25, 35, 45, 55,68),
                          labels = c("17-25 años", "26-35 años", "36-45 años", "46-55 años"," 56-68 años"),
                          include.lowest = TRUE))
-# Selección de los grupos de edades y sus respecxtivas puntuacfiones de cada participante 
+# Selección de los grupos de edades y sus respectivas puntuaciones de cada participante
+
+### Pruebas para puntuaciones de estado ####
 # Puntuación del cuestionario como estado (variable continua)
 
 data_estado <- interval_ages  %>% select(est_dep, ages_groups) %>% mutate(ages_groups = as.factor(ages_groups))
@@ -51,8 +53,28 @@ shapiro.test(anova_est$residuals)
 #Comprobar homocedasticidad (Valores mayores a 0.05 indica que las varianzas son iguales)
 bartlett.test(anova_est$residuals ~ ages_groups)
 
+
+### Pruebas para puntuaciones de rasgo ####
+
+
+# Puntuación del cuestionario como estado (variable continua)
+data_rasgo <-  interval_ages  %>% select(ras_dep, ages_groups) %>% mutate(ages_groups = as.factor(ages_groups))
+
+#Creación de modelo para análisis : regresión lineal del puntaje del cuestionario en función del grupo de edad.
+modelo_ras <- lm(ras_dep ~ ages_groups, data = data_rasgo)
+
+# Análisis anova de la regresión lineal creada anteriormente "modelo_est"
+ aov(modelo_ras)
+
+# Comprobar NORMALIDAD (Valores mayores a 0.05 quieres decir que siguen una distribución normal)
+shapiro.test(anova_ras$residuals) # Según el valor de P no sigue una distribución normal
+
+# Realizaremos una prueba de Kruskal-Wallis  que es una alternativa no paramétrica al ANOVA para distribucinones que no son normales 
+kruskal_ras <- kruskal.test(ras_dep ~ ages_groups, data = data_rasgo)
+
+
 #Guardar mis varibales 
-save(interval_ages, anova_est, data_estado, file = "data/pruebas_estadisticas_idere.RData")
+save(interval_ages, anova_est, data_estado, data_rasgo, kruskal_ras,  file = "data/pruebas_estadisticas_idere.RData")
 
 
 
